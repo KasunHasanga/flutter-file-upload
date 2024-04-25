@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as Path;
 
@@ -98,23 +99,34 @@ class _FileListState extends State<FileList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: isPermission
+
+        body:isPermission
             ? ListView.builder(
-                itemCount: dataList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var data = dataList[index];
-                  return TileList(
-                    fileUrl: data['url']!,
-                    title: data['title']!,
-                  );
-                })
+            itemCount: dataList.length,
+            itemBuilder: (BuildContext context, int index) {
+              var data = dataList[index];
+              return TileList(
+                fileUrl: data['url']!,
+                title: data['title']!,
+              );
+            })
             : Center(
-              child: TextButton(
-                  onPressed: () {
-                    checkPermission();
-                  },
-                  child: const Text("Permission issue")),
-            ));
+          child: TextButton(
+              onPressed: () {
+                checkPermission();
+              },
+              child: const Text("Permission issue")),
+        ),
+
+        bottomSheet:SpinKitCubeGrid(
+      itemBuilder: (BuildContext context, int index) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: index.isEven ? Colors.red : Colors.green,
+          ),
+        );
+      },
+    ) ,);
   }
 }
 
