@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:open_file/open_file.dart';
@@ -9,6 +9,7 @@ import 'package:path/path.dart' as Path;
 
 import 'check_permission.dart';
 import 'directory_path.dart';
+import 'helper.dart';
 
 class FileList extends StatefulWidget {
   FileList({super.key});
@@ -197,6 +198,9 @@ class _TileListState extends State<TileList> {
     print("fff $filePath");
   }
 
+
+  String fileSize="0kb";
+
   @override
   void initState() {
     super.initState();
@@ -204,6 +208,19 @@ class _TileListState extends State<TileList> {
       fileName = Path.basename(widget.fileUrl);
     });
     checkFileExit();
+    getFileSize();
+  }
+  getFileSize()async{
+    var r = await Dio().head(widget.fileUrl);
+    var byteLength=r.headers["content-length"];
+    String value =Helper.formatBytes(int.parse("${byteLength?[0]}"), 1);
+    if (kDebugMode) {
+      print("${Path.basename(widget.fileUrl)}   $value   ${widget.fileUrl}");
+    }
+
+    setState(() {
+      fileSize =value;
+    });
   }
 
   @override
@@ -212,19 +229,27 @@ class _TileListState extends State<TileList> {
       elevation: 10,
       shadowColor: Colors.grey.shade100,
       child: ListTile(
-          title: Text(widget.title),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(widget.title),
+              Text(fileSize),
+
+            ],
+          ),
           leading: IconButton(
               onPressed: () {
                 fileExists && dowloading == false
                     ? openfile()
-                    : cancelDownload();
+                    : dowloading? cancelDownload():null;
               },
               icon: fileExists && dowloading == false
                   ? const Icon(
                       Icons.window,
                       color: Colors.green,
                     )
-                  : const Icon(Icons.close)),
+                  :dowloading? const Icon(Icons.close):const Icon(Icons.ac_unit) ),
           trailing: IconButton(
               onPressed: () {
                 fileExists && dowloading == false
